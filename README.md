@@ -45,7 +45,7 @@ npm run build
 
 ## 🌐 Live Demo
 
-[View on Netlify](https://your-app-name.netlify.app)
+[View on Netlify](https://cyber-apt.netlify.app/)
 
 ---
 
