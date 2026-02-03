@@ -2,10 +2,25 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
+    // State for dark/light theme
+    const [isDark, setIsDark] = useState(true)
+
     // State to store messages - this is React's way of managing data
     const [messages, setMessages] = useState([
-        { id: 1, author: 'Welcome Bot', text: 'Welcome to the MERN Message Board! 🎉', timestamp: new Date().toLocaleString() },
-        { id: 2, author: 'Learning Guide', text: 'This is your first React app. Try adding a message below!', timestamp: new Date().toLocaleString() },
+        {
+            id: 1,
+            author: 'Welcome Bot',
+            text: 'Welcome to the MERN Message Board! 🎉 Try the theme toggle above!',
+            timestamp: new Date().toLocaleString(),
+            reactions: { '👍': 5, '❤️': 3, '😂': 1 }
+        },
+        {
+            id: 2,
+            author: 'Learning Guide',
+            text: 'This is your first React app. Try adding a message below! You can also react to messages.',
+            timestamp: new Date().toLocaleString(),
+            reactions: { '👍': 2, '❤️': 1, '😂': 0 }
+        },
     ])
 
     // State for the form inputs
@@ -23,7 +38,8 @@ function App() {
             id: Date.now(), // Simple unique ID
             author: author,
             text: text,
-            timestamp: new Date().toLocaleString()
+            timestamp: new Date().toLocaleString(),
+            reactions: { '👍': 0, '❤️': 0, '😂': 0 }
         }
 
         // Add new message to the list (this is how React updates the UI)
@@ -34,8 +50,29 @@ function App() {
         setText('')
     }
 
+    // Function to handle emoji reactions
+    const handleReaction = (messageId, emoji) => {
+        setMessages(messages.map(msg => {
+            if (msg.id === messageId) {
+                return {
+                    ...msg,
+                    reactions: {
+                        ...msg.reactions,
+                        [emoji]: msg.reactions[emoji] + 1
+                    }
+                }
+            }
+            return msg
+        }))
+    }
+
+    // Function to delete a message
+    const handleDelete = (messageId) => {
+        setMessages(messages.filter(msg => msg.id !== messageId))
+    }
+
     return (
-        <div className="app">
+        <div className={`app ${isDark ? 'dark' : 'light'}`}>
             {/* Header Section */}
             <header className="header">
                 <div className="header-content">
@@ -44,6 +81,16 @@ function App() {
                         <h1>Message Board</h1>
                     </div>
                     <p className="tagline">Learning MERN Stack - React Frontend</p>
+
+                    {/* Theme Toggle */}
+                    <button
+                        className="theme-toggle"
+                        onClick={() => setIsDark(!isDark)}
+                        aria-label="Toggle theme"
+                    >
+                        <span className="toggle-icon">{isDark ? '☀️' : '🌙'}</span>
+                        <span className="toggle-text">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+                    </button>
                 </div>
             </header>
 
@@ -94,8 +141,29 @@ function App() {
                                         <h3 className="author-name">{message.author}</h3>
                                         <time className="timestamp">{message.timestamp}</time>
                                     </div>
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => handleDelete(message.id)}
+                                        aria-label="Delete message"
+                                    >
+                                        🗑️
+                                    </button>
                                 </div>
                                 <p className="message-text">{message.text}</p>
+
+                                {/* Reaction Buttons */}
+                                <div className="reactions">
+                                    {Object.entries(message.reactions).map(([emoji, count]) => (
+                                        <button
+                                            key={emoji}
+                                            className={`reaction-btn ${count > 0 ? 'active' : ''}`}
+                                            onClick={() => handleReaction(message.id, emoji)}
+                                        >
+                                            <span className="reaction-emoji">{emoji}</span>
+                                            <span className="reaction-count">{count}</span>
+                                        </button>
+                                    ))}
+                                </div>
                             </article>
                         ))}
                     </div>
